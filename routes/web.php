@@ -18,7 +18,6 @@ use TelegramBot\Api\Types\Message;
 
 Route::get('/t', function () {
     /**
-     *
      * @var $bot \TelegramBot\Api\Client | \TelegramBot\Api\BotApi
      */
 
