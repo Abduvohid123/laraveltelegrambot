@@ -75,11 +75,20 @@ Route::post("/" . env('BOT_TOKEN') . "/webhook", function () {
 
             try {
                 $text = $update->getMessage()->getText();
+                $contact_bor=$update->getMessage()->getContact();
                 $back_massiv=['Orqaga','Back','Nazad'];
                 $lang_massiv=['🇺🇿 Uzbek','🇬🇧 English','🇷🇺 Russkiy'];
                 $lang_messages=['Keling tanishamiz!😁 Mening ismim Juju. Siznikichi?',"Let's meet!😁 My name is Juju. What is your name?",'Меня зовут Джуджу. А вы?'];
                 $chatId = $update->getMessage()->getChat()->getId();
                 $user = \App\Models\User::where('chat',$chatId)->first();
+
+                if($contact_bor){
+
+                    $user->update([
+                       'status'=>'3'
+                    ]);
+
+                }
                 if(in_array($text,$lang_massiv)){
                     $index= array_search($text,$lang_massiv);
                     $user = \App\Models\User::where('chat',$chatId)->first();
@@ -103,31 +112,48 @@ Route::post("/" . env('BOT_TOKEN') . "/webhook", function () {
                         $bot->sendMessage($chatId,$lang_messages[intval($user->lang)],'HTML',false,null,$keyboard);
                     }
                 }
+                else{
+                    if(in_array($text,$back_massiv)){
+                        if($user->status=='1'){
+                            $keyboard = [];
+                            foreach (array_chunk(['🇺🇿 Uzbek', '🇬🇧 English', '🇷🇺 Russkiy'], 2) as $key => $categories) {
+                                $row = [];
+                                foreach ($categories as $id => $category) {
+
+                                    $row[] = [
+                                        'text' => $category,
+
+                                    ];
 
 
-                if(in_array($text,$back_massiv)){
-                    if($user->status=='tillar'){
-                        $keyboard = [];
-                        foreach (array_chunk(['🇺🇿 Uzbek', '🇬🇧 English', '🇷🇺 Russkiy'], 2) as $key => $categories) {
-                            $row = [];
-                            foreach ($categories as $id => $category) {
-
-                                $row[] = [
-                                    'text' => $category,
-
-                                ];
-
-
+                                }
+                                $keyboard[] = $row;
                             }
-                            $keyboard[] = $row;
+                            $keyboard = new \TelegramBot\Api\Types\ReplyKeyboardMarkup(
+                                $keyboard, true, true);
+                            $bot->sendMessage($chatId, "<b>🇺🇿 Iltimos tilni tanlang!\n\n🇬🇧 Please! choose a language!\n\n🇷🇺 Пожалуйста, выберите язык!</b>", "HTML", false, null, $keyboard);
+
                         }
-                        $keyboard = new \TelegramBot\Api\Types\ReplyKeyboardMarkup(
-                            $keyboard, true, true);
-                        $bot->sendMessage($chatId, "<b>🇺🇿 Iltimos tilni tanlang!\n\n🇬🇧 Please! choose a language!\n\n🇷🇺 Пожалуйста, выберите язык!</b>", "HTML", false, null, $keyboard);
 
                     }
+                    else{
+                        $user->update([
+                           'name'=>$text,
+                           'status'=>2
+                        ]);
 
+                        if(intval($user->status) ==2){
+                            $back = $back_massiv[intval($user->lang)];
+                            $keyboard = new ReplyKeyboardMarkup([ [['text' => 'Raqam yuborish','request_contact'=>true]],  [['text' => $back]]], null, true);
+                            $bot->sendMessage($chatId, "Raqam yuboring", 'HTML', false, null,  $keyboard);
+
+                        }
+
+                    }
                 }
+
+
+
 
 
 

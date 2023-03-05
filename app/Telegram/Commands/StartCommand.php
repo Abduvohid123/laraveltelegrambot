@@ -35,7 +35,7 @@ class StartCommand
                     if (!$user) {
                         $user = User::create([
                             'chat' => $chatId,
-                            'status'=>'tillar'
+                            'status'=>1
                         ]);
 
                     }
@@ -48,8 +48,8 @@ class StartCommand
                         } else {
 
                             $back = $back_massiv[intval($user->lang)];
-                            $keyboard = new ReplyKeyboardMarkup(['text' => $back], null, true);
-                            $bot->sendMessage($chatId, $lang_messages[intval($user->lang)], 'HTML', false, null, null, $keyboard);
+                            $keyboard = new ReplyKeyboardMarkup([[['text' => $back]]], null, true);
+                            $bot->sendMessage($chatId, $lang_messages[intval($user->lang)], 'HTML', false, null,  $keyboard);
                         }
 
 
