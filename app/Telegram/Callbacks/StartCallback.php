@@ -3,7 +3,7 @@
 namespace App\Telegram\Callbacks;
 
 use App\Models\User;
-use App\Telegram\Buttons\StartButton;
+use App\Telegram\Buttons\Reply\StartButton;
 
 class StartCallback
 {

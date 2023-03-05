@@ -1,17 +1,19 @@
 <?php
 
-namespace App\Telegram\Buttons;
+namespace App\Telegram\Buttons\Reply;
 
-use App\Models\Category;
-
-class StartButton
+class BackButton
 {
     public $message;
 
-    public function __construct()
+    public function __construct($message)
     {
-        $this->message = "<b>🇺🇿 Iltimos tilni tanlang!\n\n🇬🇧 Please! choose a language!\n\n🇷🇺 Пожалуйста, выберите язык!</b>";
+        if($message){
+
+            $this->message = $message;
+        }
     }
+
 
     public function get()
     {
@@ -31,6 +33,6 @@ class StartButton
             $keyboard[]=$row;
         }
         return new \TelegramBot\Api\Types\ReplyKeyboardMarkup(
-            $keyboard,null,true);
+            $keyboard,true,true);
     }
 }

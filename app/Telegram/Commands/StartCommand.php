@@ -3,7 +3,8 @@
 namespace App\Telegram\Commands;
 
 use App\Models\User;
-use App\Telegram\Buttons\StartButton;
+use App\Telegram\Buttons\Reply\StartButton;
+
 
 class StartCommand
 {
@@ -26,18 +27,24 @@ class StartCommand
                 $chatId = $message->getChat()->getId();
 
                 $user = User::where('chat',$chatId)->first();
-                if($user){
-                    $bot->sendMessage($chatId,"User mavjud");
-
-                }else{
-
-                    User::create([
+                if(!$user){
+                  $user=  User::create([
                         'chat'=>$chatId
                     ]);
-                    $bot->sendMessage($chatId,"User yaratildi!");
                 }
-                $button= new StartButton();
-                $bot->sendMessage($chatId, $button->message, "HTML", false, null, $button->get());
+
+
+                if ($user->lang){
+
+
+//                    $bot->sendMessage($chatId, $button->message, "HTML", false, null, $button->get());
+
+                }else{
+//                   $button = new StartButton();
+//                   var_dump($button);
+                    $bot->sendMessage($chatId, "salom", "HTML", false, null);
+
+                }
 
 
             } catch (Exception $exception) {
