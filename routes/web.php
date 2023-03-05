@@ -3,6 +3,7 @@
 
 use Illuminate\Support\Facades\Route;
 use TelegramBot\Api\Types\Message;
+use TelegramBot\Api\Types\ReplyKeyboardMarkup;
 
 /*
 |--------------------------------------------------------------------------
@@ -74,23 +75,63 @@ Route::post("/" . env('BOT_TOKEN') . "/webhook", function () {
 
             try {
                 $text = $update->getMessage()->getText();
-
+                $back_massiv=['Orqaga','Back','Nazad'];
                 $lang_massiv=['🇺🇿 Uzbek','🇬🇧 English','🇷🇺 Russkiy'];
                 $lang_messages=['Keling tanishamiz!😁 Mening ismim Juju. Siznikichi?',"Let's meet!😁 My name is Juju. What is your name?",'Меня зовут Джуджу. А вы?'];
                 $chatId = $update->getMessage()->getChat()->getId();
+                $user = \App\Models\User::where('chat',$chatId)->first();
                 if(in_array($text,$lang_massiv)){
                     $index= array_search($text,$lang_massiv);
                     $user = \App\Models\User::where('chat',$chatId)->first();
                     $user->update([
                        'lang'=>$index
                     ]);
-//                    $button = new \App\Telegram\Buttons\Reply\BackButton($lang_messages[$index]);
-//                    $bot->sendMessage($chatId,$button->message,'HTML',false,null,$button->get());
+                    if($user->name){
+
+                    }else{
+
+                        $back=$back_massiv[intval($user->lang)];
+                        $keyboard=new ReplyKeyboardMarkup(
+                            [
+                                [
+                                    [
+                                        'text'=>$back
+                                    ]
+                                ]
+                            ]
+                            ,null,true);
+                        $bot->sendMessage($chatId,$lang_messages[intval($user->lang)],'HTML',false,null,$keyboard);
+                    }
+                }
+
+
+                if(in_array($text,$back_massiv)){
+                    if($user->status=='tillar'){
+                        $keyboard = [];
+                        foreach (array_chunk(['🇺🇿 Uzbek', '🇬🇧 English', '🇷🇺 Russkiy'], 2) as $key => $categories) {
+                            $row = [];
+                            foreach ($categories as $id => $category) {
+
+                                $row[] = [
+                                    'text' => $category,
+
+                                ];
+
+
+                            }
+                            $keyboard[] = $row;
+                        }
+                        $keyboard = new \TelegramBot\Api\Types\ReplyKeyboardMarkup(
+                            $keyboard, true, true);
+                        $bot->sendMessage($chatId, "<b>🇺🇿 Iltimos tilni tanlang!\n\n🇬🇧 Please! choose a language!\n\n🇷🇺 Пожалуйста, выберите язык!</b>", "HTML", false, null, $keyboard);
+
+                    }
+
                 }
 
 
 
-                $bot->sendMessage($chatId, strrev($text));
+
 
             } catch (Exception $e) {
 
